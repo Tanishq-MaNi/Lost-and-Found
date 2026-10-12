@@ -6,7 +6,7 @@ const LostItems = () => {
       const navigate = useNavigate();
 
   return (
-    <div className="p-5 text-white sm:p-6">
+    <div className="p-5 max-w-350 mx-auto text-white sm:p-6">
         <button
         type="button"
         onClick={() => navigate("/user")}

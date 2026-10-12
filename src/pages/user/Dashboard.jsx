@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -12,6 +11,7 @@ import {
 } from "../../assets/Icons";
 
 import ItemCard from "../../components/common/ItemCard";
+import SideBar from "../../components/layout/SideBar";
 
 const stats = [
   { label: "My Reports", value: 1, color: "bg-sky-400", icon: "reports" },
@@ -25,16 +25,29 @@ const Dashboard = () => {
   const [notifi, setNotifi] = useState(true);
   const [userInfo] = useState({ name: "User" });
   const [search, setSearch] = useState("");
+  const [burgerMenuActive, setBurgerMenuActive] = useState(false)
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-7 px-4 py-5 sm:gap-8 sm:px-6 sm:py-7 lg:px-8 lg:py-9">
+ <div className="mx-auto flex w-full max-w-350 flex-col gap-7 px-4 py-5 sm:gap-8 sm:px-6 sm:py-7 lg:gap-9 lg:px-10 lg:py-10 2xl:px-12">
+
+      {burgerMenuActive &&
+        <SideBar
+          open={burgerMenuActive}
+          onClose={() => setBurgerMenuActive(false)}
+          userInfo={userInfo}
+        />
+      }
 
       {/* Header */}
       <header className="flex items-center justify-between">
+
         <button
+          onClick={() => setBurgerMenuActive(true)}
           type="button"
           aria-label="Open menu"
-          className="rounded-xl border border-white/8 bg-white/3 p-2.5 transition hover:bg-white/8"
+          aria-controls="app-sidebar"
+          aria-expanded={burgerMenuActive}
+          className="rounded-xl border border-white/8 bg-white/3 p-2.5 transition hover:bg-white/8 lg:hidden"
         >
           <BurgerMenuIcon size={24} />
         </button>
@@ -160,7 +173,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           {stats.map((stat) => (
             <div
               key={stat.label}

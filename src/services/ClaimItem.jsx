@@ -1,8 +1,12 @@
 import { useRef, useState } from "react";
-import ItemCard from '../components/common/ItemCard'
+import { useNavigate } from "react-router-dom";
 
+import FoundItemCard from "../components/common/FoundItemCard";
+import { ArrowIcon } from "../assets/Icons";
 
 const ClaimItem = () => {
+ const navigate = useNavigate();
+
     const [reason, setReason] = useState(
         "This is my phone. It has a small scratch on the back and a transparent case."
     );
@@ -46,14 +50,14 @@ const ClaimItem = () => {
     };
 
     return (
-        <div className="p-5 sm:p-6">
+        <div className="">
             <button
                 type="button"
-                onClick={() => window.history.back()}
-                aria-label="Go back"
-                className="mb-5 text-sm text-gray-400 hover:text-white"
+                onClick={() => navigate("/dashboard")}
+                className="flex items-center gap-1 mb-5 text-sm text-gray-400 hover:text-white"
             >
-                ← Back to Dashboard
+                <ArrowIcon />
+                Back to Dashboard
             </button>
 
             <h1 className="text-2xl font-semibold">
@@ -68,7 +72,7 @@ const ClaimItem = () => {
                 <div>
 
                 </div> */}
-                <ItemCard/>
+                <FoundItemCard />
             </section>
 
             <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">

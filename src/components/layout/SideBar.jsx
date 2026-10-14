@@ -3,10 +3,20 @@ import { Link, useLocation } from "react-router-dom";
 
 const groups = [
   {
+    title: "ADMIN",
+    links: [
+      { label: "Pending Reports", path: "/admin/pending-reports", icon: "⌕" },
+      { label: "Verified Reports", path: "/admin/verified-reports", icon: "⌕" },
+      { label: "Rejected Reports", path: "/admin/rejected-reports", icon: "⌕" },
+      { label: "Delisted Reports", path: "/admin/delisted-reports", icon: "⌕" },
+    ]
+  },
+  {
     title: "WORKSPACE",
     links: [
       { label: "Dashboard", path: "/dashboard", icon: "⌂" },
       { label: "Browse Items", path: "/lost-items", icon: "⌕" },
+
     ],
   },
   {
@@ -75,10 +85,9 @@ const SideBar = ({
           onClick={onClose}
           className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm
             transition-opacity duration-300 lg:hidden
-            ${
-              open
-                ? "visible opacity-100"
-                : "invisible opacity-0"
+            ${open
+              ? "visible opacity-100"
+              : "invisible opacity-0"
             }`}
         />
       )}
@@ -95,11 +104,10 @@ const SideBar = ({
               flex-col border-r border-white/8 bg-[#0d1420]
               shadow-2xl shadow-black/40 transition-transform
               duration-300 ease-out lg:hidden
-              ${
-                open
-                  ? "translate-x-0"
-                  : "-translate-x-full"
-              }`
+              ${open
+              ? "translate-x-0"
+              : "-translate-x-full"
+            }`
         }
       >
         {/* Brand */}
@@ -141,7 +149,7 @@ const SideBar = ({
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 font-bold text-sky-300 ring-1 ring-sky-400/15">
               {initials}
             </div>
-            
+
 
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">
@@ -155,7 +163,7 @@ const SideBar = ({
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto px-4 pb-5 pt-6">
+        <nav className="flex-1 custom-scrollbar overflow-y-auto px-4 pb-5 pt-6">
           {groups.map((group, index) => (
             <div
               key={group.title}
@@ -175,11 +183,10 @@ const SideBar = ({
                       to={item.path}
                       onClick={onClose}
                       aria-current={active ? "page" : undefined}
-                      className={`relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
-                        active
+                      className={`relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active
                           ? "bg-sky-400/10 text-sky-300"
                           : "text-slate-400 hover:bg-white/5 hover:text-white"
-                      }`}
+                        }`}
                     >
                       {active && (
                         <span className="absolute bottom-2 left-0 top-2 w-0.75 rounded-r-full bg-sky-400" />

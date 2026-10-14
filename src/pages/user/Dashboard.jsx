@@ -10,8 +10,7 @@ import {
   ReportDataIcon,
 } from "../../assets/Icons";
 
-import ItemCard from "../../components/common/ItemCard";
-import SideBar from "../../components/layout/SideBar";
+import FoundItemCard from "../../components/common/FoundItemCard";
 
 const stats = [
   { label: "My Reports", value: 1, color: "bg-sky-400", icon: "reports" },
@@ -22,52 +21,13 @@ const stats = [
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const [notifi, setNotifi] = useState(true);
+
   const [userInfo] = useState({ name: "User" });
   const [search, setSearch] = useState("");
-  const [burgerMenuActive, setBurgerMenuActive] = useState(false)
+
 
   return (
- <div className="mx-auto flex w-full max-w-350 flex-col gap-7 px-4 py-5 sm:gap-8 sm:px-6 sm:py-7 lg:gap-9 lg:px-10 lg:py-10 2xl:px-12">
-
-      {burgerMenuActive &&
-        <SideBar
-          open={burgerMenuActive}
-          onClose={() => setBurgerMenuActive(false)}
-          userInfo={userInfo}
-        />
-      }
-
-      {/* Header */}
-      <header className="flex items-center justify-between">
-
-        <button
-          onClick={() => setBurgerMenuActive(true)}
-          type="button"
-          aria-label="Open menu"
-          aria-controls="app-sidebar"
-          aria-expanded={burgerMenuActive}
-          className="rounded-xl border border-white/8 bg-white/3 p-2.5 transition hover:bg-white/8 lg:hidden"
-        >
-          <BurgerMenuIcon size={24} />
-        </button>
-
-        <div className="relative">
-          {notifi && (
-            <span className="absolute right-2 top-2 z-10 h-2.5 w-2.5 rounded-full border-2 border-[#0d121a] bg-rose-500" />
-          )}
-
-          <button
-            type="button"
-            aria-label="Notifications"
-            onClick={() => setNotifi(!notifi)}
-            className="rounded-xl border border-white/8 bg-white/3 p-2 transition hover:bg-white/8"
-          >
-            <NotificationIcon size={28} />
-          </button>
-        </div>
-      </header>
-
+    <>
       {/* Welcome */}
       <section className="relative overflow-hidden rounded-2xl border border-white/8 bg-linear-to-br from-[#172537] via-[#111c2a] to-[#11151e] p-5 sm:p-7 lg:p-8">
         <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-sky-400/8 blur-3xl" />
@@ -124,7 +84,7 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4">
           <button
             type="button"
-            onClick={() => navigate("report/lost")}
+            onClick={() => navigate("/report/lost")}
             className="group flex min-h-24 items-center gap-4 rounded-2xl border border-rose-400/15 bg-rose-500/8 p-4 text-left transition hover:border-rose-400/35 hover:bg-rose-500/13 sm:min-h-28 sm:p-5"
           >
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-rose-500/15 text-rose-300 transition group-hover:bg-rose-500/25">
@@ -143,7 +103,7 @@ const Dashboard = () => {
 
           <button
             type="button"
-            onClick={() => navigate("report/found")}
+            onClick={() => navigate("/report/found")}
             className="group flex min-h-24 items-center gap-4 rounded-2xl border border-emerald-400/15 bg-emerald-500/[0.07] p-4 text-left transition hover:border-emerald-400/35 hover:bg-emerald-500/12 sm:min-h-28 sm:p-5"
           >
             <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-300 transition group-hover:bg-emerald-500/25">
@@ -208,7 +168,7 @@ const Dashboard = () => {
 
           <button
             type="button"
-            onClick={() => navigate("lost-items")}
+            onClick={() => navigate("/lost-items")}
             className="shrink-0 rounded-lg px-2 py-2 text-sm font-medium text-sky-300 transition hover:bg-sky-400/8 hover:text-sky-200"
           >
             View all
@@ -218,13 +178,13 @@ const Dashboard = () => {
         <div className="flex min-w-0 flex-col gap-3">
           {[1, 2].map((id) => (
             <div key={id} className="min-w-0">
-              <ItemCard />
+              <FoundItemCard />
             </div>
           ))}
         </div>
       </section>
 
-    </div>
+    </>
   );
 };
 

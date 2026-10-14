@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
+import { ArrowIcon } from "../../assets/Icons";
+
 const ReportItem = () => {
   const { type } = useParams();
   const navigate = useNavigate();
@@ -32,13 +34,14 @@ const ReportItem = () => {
   };
 
   return (
-    <div className="p-5 text-white sm:p-6">
+    <div>
       <button
         type="button"
-        onClick={() => navigate("/user")}
-        className="mb-5 text-sm text-gray-400 hover:text-white"
+        onClick={() => navigate("/dashboard")}
+        className="flex items-center gap-1  mb-5 text-sm text-gray-400 hover:text-white"
       >
-        ← Back to Dashboard
+        <ArrowIcon /> 
+        Back to Dashboard
       </button>
 
       <h1 className="text-2xl font-semibold">

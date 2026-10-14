@@ -1,9 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
-const ItemCard = () => {
-
+const FoundItemCard = () => {
   const navigate = useNavigate();
-
 
   const item = {
     id: "101",
@@ -57,4 +55,4 @@ const ItemCard = () => {
   );
 };
 
-export default ItemCard;
+export default FoundItemCard;

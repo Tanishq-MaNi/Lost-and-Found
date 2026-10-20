@@ -1,128 +1,162 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 
-import { ArrowIcon } from "../../assets/Icons";
+import { reportService } from "../../services/reportService";
+import { useToast } from "../../context/ToastContext";
+import { CATEGORIES, cap } from "../../utils/format";
+
+const inputClass =
+  "w-full rounded-lg border border-white/10 bg-[#19202A] p-3 text-sm outline-none focus:border-sky-500";
 
 const ReportItem = () => {
   const { type } = useParams();
   const navigate = useNavigate();
+  const { notify } = useToast();
+
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "other",
+    location: "",
+    incidentDate: "",
+    contactInfo: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  // /report/anything-else is not a valid page.
+  if (type !== "lost" && type !== "found") return <Navigate to="/" replace />;
 
   const isLost = type === "lost";
+  const today = new Date().toLocaleDateString("en-CA"); // YYYY-MM-DD
 
-  const [formData, setFormData] = useState({
-    name: "",
-    description: "",
-    location: "",
-    date: "",
-    image: null,
-  });
+  const handleChange = (e) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  const handleChange = (e) => {
-    const { name, value, files } = e.target;
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: files ? files[0] : value,
-    }));
-  };
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
 
-    //send formData to your Express backend.
-    console.log({ type, ...formData });
+    setSubmitting(true);
+    try {
+      await reportService.create({ ...form, type });
+      notify("Report submitted. It will be listed once an admin verifies it.");
+      navigate("/my-reports");
+    } catch (err) {
+      notify(err.message, "error");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <div>
-      <button
-        type="button"
-        onClick={() => navigate("/dashboard")}
-        className="flex items-center gap-1  mb-5 text-sm text-gray-400 hover:text-white"
-      >
-        <ArrowIcon /> 
-        Back to Dashboard
-      </button>
-
+    <div className="">
       <h1 className="text-2xl font-semibold">
         {isLost ? "Report Lost Item" : "Report Found Item"}
       </h1>
-
       <p className="mt-2 text-sm text-gray-400">
-        Provide the details to help identify the item.
+        Provide the details to help identify the item. Avoid putting private
+        details (like ID numbers) in the description. Keep those for the claim.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-4">
-
         <div>
-          <label className="mb-2 block text-sm">Item name</label>
+          <label htmlFor="title" className="mb-2 block text-sm">Item name</label>
           <input
+            id="title"
             required
-            name="name"
-            value={formData.name}
+            name="title"
+            maxLength={100}
+            value={form.title}
             onChange={handleChange}
-            placeholder="e.g. Wallet, ID card"
-            className="w-full rounded-lg border border-white/10 bg-[#19202A] p-3 outline-none focus:border-sky-500"
+            placeholder="e.g. Black wallet, HP laptop"
+            className={inputClass}
           />
         </div>
 
-        <div>
-          <label className="mb-2 block text-sm">Description</label>
-          <textarea
-            required
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            placeholder="Describe the item and identifying details"
-            rows={3}
-            className="w-full resize-y rounded-lg border border-white/10 bg-[#19202A] p-3 outline-none focus:border-sky-500"
-          />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label htmlFor="category" className="mb-2 block text-sm">Category</label>
+            <select
+              id="category"
+              name="category"
+              value={form.category}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              {CATEGORIES.map((c) => (
+                <option key={c} value={c}>{cap(c)}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="incidentDate" className="mb-2 block text-sm">
+              {isLost ? "Date lost" : "Date found"}
+            </label>
+            <input
+              id="incidentDate"
+              required
+              type="date"
+              name="incidentDate"
+              max={today}
+              value={form.incidentDate}
+              onChange={handleChange}
+              className={inputClass}
+            />
+          </div>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm">
+          <label htmlFor="location" className="mb-2 block text-sm">
             {isLost ? "Last seen location" : "Found location"}
           </label>
           <input
+            id="location"
             required
             name="location"
-            value={formData.location}
+            value={form.location}
             onChange={handleChange}
-            placeholder="e.g. College library"
-            className="w-full rounded-lg border border-white/10 bg-[#19202A] p-3 outline-none focus:border-sky-500"
+            placeholder="e.g. Central Library, 2nd floor"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm">Date</label>
-          <input
+          <label htmlFor="description" className="mb-2 block text-sm">Description</label>
+          <textarea
+            id="description"
             required
-            type="date"
-            name="date"
-            value={formData.date}
+            name="description"
+            rows={4}
+            maxLength={2000}
+            value={form.description}
             onChange={handleChange}
-            className="w-full rounded-lg border border-white/10 bg-[#19202A] p-3 outline-none focus:border-sky-500"
+            placeholder="Colour, brand, size, marks, anything that helps identify it"
+            className={`${inputClass} resize-y`}
           />
         </div>
 
         <div>
-          <label className="mb-2 block text-sm">Item image (optional)</label>
+          <label htmlFor="contactInfo" className="mb-2 block text-sm">
+            Contact info (optional)
+          </label>
           <input
-            type="file"
-            name="image"
-            accept="image/*"
+            id="contactInfo"
+            name="contactInfo"
+            value={form.contactInfo}
             onChange={handleChange}
-            className="w-full text-sm text-gray-400 file:mr-3 file:rounded-md file:border-0 file:bg-[#263241] file:p-2 file:text-white"
+            placeholder="Phone or where to find you"
+            className={inputClass}
           />
         </div>
 
         <button
           type="submit"
-          className="mt-2 rounded-lg bg-sky-600 p-3 font-medium transition hover:bg-sky-500"
+          disabled={submitting}
+          className="mt-2 rounded-lg bg-sky-600 p-3 font-medium transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Submit Report
+          {submitting ? "Submitting..." : "Submit Report"}
         </button>
-
       </form>
     </div>
   );

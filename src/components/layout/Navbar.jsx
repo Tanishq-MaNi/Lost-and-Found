@@ -1,20 +1,42 @@
-
-import { Link } from "react-router-dom";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
-import {
-  BurgerMenuIcon,
-  NotificationIcon,
-} from "../../assets/Icons";
+import { BurgerMenuIcon, NotificationIcon } from "../../assets/Icons";
+import { useAuth } from "../../context/AuthContext";
+
+const titles = {
+  "/": "Dashboard",
+  "/items": "Browse Items",
+  "/report/lost": "Report Lost Item",
+  "/report/found": "Report Found Item",
+  "/my-reports": "My Reports",
+  "/my-claims": "My Claims",
+  "/profile": "My Profile",
+  "/admin/dashboard": "Admin Dashboard",
+  "/admin/pending-reports": "Pending Reports",
+  "/admin/all": "All Reports",
+  "/admin/claims-management": "Claims Management",
+  "/admin/student-management": "Student Management",
+  "/admin/automatic-matches": "Automatic Matches",
+};
+
+function getTitle(pathname) {
+  if (pathname.endsWith("/claim")) return "Claim Item";
+  if (pathname.startsWith("/items/")) return "Item Details";
+  return titles[pathname] || "Lost & Found";
+}
 
 const Navbar = ({ burgerMenuActive, setBurgerMenuActive }) => {
+  const { user } = useAuth();
+  const { pathname } = useLocation();
+  const [hasNotifications, setHasNotifications] = useState(true);
 
-  const [notifi, setNotifi] = useState(true);
+  const title = getTitle(pathname);
+  const section = user?.role === "admin" ? "Admin" : "Student";
+
   return (
-    <>
-      {/* Header */}
-      < header className="flex items-center justify-between" >
-
+    <header className="flex items-center justify-between">
+      <div className="flex items-center gap-3">
         <button
           onClick={() => setBurgerMenuActive(true)}
           type="button"
@@ -26,31 +48,31 @@ const Navbar = ({ burgerMenuActive, setBurgerMenuActive }) => {
           <BurgerMenuIcon size={24} />
         </button>
 
-        {/* temporary navigation */}
-        <nav className="relative z-10 flex w-full max-w-7xl justify-end gap-4 px-6 py-4">
-          <Link to="/">Home</Link>
-          <Link to="/login">Login</Link>
-          <Link to="/dashboard">Dashboard</Link>
-          <Link to="/admin/pending-reports">Pending</Link>
-        </nav>
-
-        <div className="relative">
-          {notifi && (
-            <span className="absolute right-2 top-2 z-10 h-2.5 w-2.5 rounded-full border-2 border-[#0d121a] bg-rose-500" />
-          )}
-
-          <button
-            type="button"
-            aria-label="Notifications"
-            onClick={() => setNotifi(!notifi)}
-            className="rounded-xl border border-white/8 bg-white/3 p-2 transition hover:bg-white/8"
-          >
-            <NotificationIcon size={28} />
-          </button>
+        <div className="min-w-0">
+          <p className="text-xs text-slate-500">
+            {section} / {title}
+          </p>
+          <h2 className="mt-1 truncate text-base font-semibold text-white">
+            {title}
+          </h2>
         </div>
-      </header >
-    </>
+      </div>
 
+      <div className="relative">
+        {hasNotifications && (
+          <span className="absolute right-2 top-2 z-10 h-2.5 w-2.5 rounded-full border-2 border-[#0d121a] bg-rose-500" />
+        )}
+
+        <button
+          type="button"
+          aria-label="Notifications"
+          onClick={() => setHasNotifications(false)}
+          className="rounded-xl border border-white/8 bg-white/3 p-2 transition hover:bg-white/8"
+        >
+          <NotificationIcon size={28} />
+        </button>
+      </div>
+    </header>
   );
 };
 

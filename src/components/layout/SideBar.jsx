@@ -1,22 +1,36 @@
 import { useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
-const groups = [
+import {
+  Dashboard,
+  File,
+  Users,
+  ClipboardCheck,
+  GitCompareArrows,
+  PackageCheck,
+} from "../../assets/Icons";
+import { useAuth } from "../../context/AuthContext";
+
+const adminGroups = [
   {
     title: "ADMIN",
     links: [
-      { label: "Pending Reports", path: "/admin/pending-reports", icon: "⌕" },
-      { label: "Verified Reports", path: "/admin/verified-reports", icon: "⌕" },
-      { label: "Rejected Reports", path: "/admin/rejected-reports", icon: "⌕" },
-      { label: "Delisted Reports", path: "/admin/delisted-reports", icon: "⌕" },
-    ]
+      { label: "Admin Dashboard", path: "/admin/dashboard", icon: <Dashboard color="#90a1b9" /> },
+      { label: "Pending Reports", path: "/admin/pending-reports", icon: <File color="#90a1b9" /> },
+      { label: "Student Management", path: "/admin/student-management", icon: <Users color="#90a1b9" /> },
+      { label: "Claims Management", path: "/admin/claims-management", icon: <ClipboardCheck color="#90a1b9" /> },
+      { label: "Automatic Matches", path: "/admin/automatic-matches", icon: <GitCompareArrows color="#90a1b9" /> },
+      { label: "All Reports", path: "/admin/all", icon: <PackageCheck color="#90a1b9" /> },
+    ],
   },
+];
+
+const studentGroups = [
   {
     title: "WORKSPACE",
     links: [
-      { label: "Dashboard", path: "/dashboard", icon: "⌂" },
-      { label: "Browse Items", path: "/lost-items", icon: "⌕" },
-
+      { label: "Dashboard", path: "/", icon: <Dashboard color="#90a1b9" /> },
+      { label: "Browse Items", path: "/items", icon: "⌕" },
     ],
   },
   {
@@ -28,22 +42,21 @@ const groups = [
       { label: "Report Found Item", path: "/report/found", icon: "＋" },
     ],
   },
-  {
-    title: "ACCOUNT",
-    links: [
-      { label: "My Profile", path: "/profile", icon: "♙" },
-      { label: "Settings", path: "/settings", icon: "⚙" },
-    ],
-  },
 ];
 
-const SideBar = ({
-  open,
-  onClose,
-  userInfo,
-  desktop = false,
-}) => {
+const accountGroup = {
+  title: "ACCOUNT",
+  links: [{ label: "My Profile", path: "/profile", icon: "♙" }],
+};
+
+const SideBar = ({ open, onClose, userInfo, desktop = false }) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
+
+  const isAdmin = userInfo?.role === "admin";
+  const groups = [...(isAdmin ? adminGroups : studentGroups), accountGroup];
+  const home = isAdmin ? "/admin/dashboard" : "/";
 
   useEffect(() => {
     if (!open || desktop) return;
@@ -62,17 +75,29 @@ const SideBar = ({
   }, [open, onClose, desktop]);
 
   const isActive = (path) =>
-    location.pathname === path ||
-    (path !== "/dashboard" &&
-      location.pathname.startsWith(`${path}/`));
+    path === "/"
+      ? location.pathname === "/"
+      : location.pathname === path || location.pathname.startsWith(`${path}/`);
 
-  const initials = (userInfo?.name || "User")
+  const displayName =
+    userInfo?.name ||
+    userInfo?.email ||
+    userInfo?.registrationNumber ||
+    "Campus Member";
+
+  const initials = displayName
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
     .map((word) => word[0])
     .join("")
     .toUpperCase();
+
+  const handleSignOut = () => {
+    onClose();
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <>
@@ -83,12 +108,9 @@ const SideBar = ({
           aria-label="Close navigation"
           tabIndex={open ? 0 : -1}
           onClick={onClose}
-          className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm
-            transition-opacity duration-300 lg:hidden
-            ${open
-              ? "visible opacity-100"
-              : "invisible opacity-0"
-            }`}
+          className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity duration-300 lg:hidden ${
+            open ? "visible opacity-100" : "invisible opacity-0"
+          }`}
         />
       )}
 
@@ -100,27 +122,17 @@ const SideBar = ({
         className={
           desktop
             ? "flex h-full w-full flex-col bg-[#0b111b]"
-            : `fixed inset-y-0 left-0 z-50 flex w-[min(300px,85vw)]
-              flex-col border-r border-white/8 bg-[#0d1420]
-              shadow-2xl shadow-black/40 transition-transform
-              duration-300 ease-out lg:hidden
-              ${open
-              ? "translate-x-0"
-              : "-translate-x-full"
-            }`
+            : `fixed inset-y-0 left-0 z-50 flex w-[min(300px,85vw)] flex-col border-r border-white/8 bg-[#0d1420] shadow-2xl shadow-black/40 transition-transform duration-300 ease-out lg:hidden ${
+                open ? "translate-x-0" : "-translate-x-full"
+              }`
         }
       >
         {/* Brand */}
         <div className="flex h-19 shrink-0 items-center justify-between border-b border-white/[0.07] px-5">
-          <Link
-            to="/dashboard"
-            onClick={onClose}
-            className="flex items-center gap-3"
-          >
+          <Link to={home} onClick={onClose} className="flex items-center gap-3">
             <span className="flex h-10 w-10 items-center justify-center rounded-xl border border-sky-400/20 bg-sky-400/10 text-xl text-sky-300">
               ◈
             </span>
-
             <span>
               <span className="block text-base font-bold text-white">
                 Lost &amp; Found
@@ -149,26 +161,21 @@ const SideBar = ({
             <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-400/10 font-bold text-sky-300 ring-1 ring-sky-400/15">
               {initials}
             </div>
-
-
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-white">
-                {userInfo?.name || "Campus Member"}
+                {displayName}
               </p>
               <p className="mt-1 text-xs text-emerald-400">
-                ● Campus member
+                ● {isAdmin ? "Administrator" : "Campus member"}
               </p>
             </div>
           </div>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 custom-scrollbar overflow-y-auto px-4 pb-5 pt-6">
+        <nav className="custom-scrollbar flex-1 overflow-y-auto px-4 pb-5 pt-6">
           {groups.map((group, index) => (
-            <div
-              key={group.title}
-              className={index ? "mt-7" : ""}
-            >
+            <div key={group.title} className={index ? "mt-7" : ""}>
               <p className="mb-3 px-3 text-[10px] font-bold tracking-[0.18em] text-slate-500">
                 {group.title}
               </p>
@@ -183,19 +190,18 @@ const SideBar = ({
                       to={item.path}
                       onClick={onClose}
                       aria-current={active ? "page" : undefined}
-                      className={`relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active
+                      className={`relative flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                        active
                           ? "bg-sky-400/10 text-sky-300"
                           : "text-slate-400 hover:bg-white/5 hover:text-white"
-                        }`}
+                      }`}
                     >
                       {active && (
                         <span className="absolute bottom-2 left-0 top-2 w-0.75 rounded-r-full bg-sky-400" />
                       )}
-
                       <span className="flex h-6 w-6 items-center justify-center text-lg">
                         {item.icon}
                       </span>
-
                       <span>{item.label}</span>
                     </Link>
                   );
@@ -211,14 +217,14 @@ const SideBar = ({
             Help your campus community reunite people with their belongings.
           </p>
 
-          <Link
-            to="/login"
-            onClick={onClose}
-            className="flex min-h-11 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-rose-300 transition hover:bg-rose-400/8"
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="flex min-h-11 w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm font-medium text-rose-300 transition hover:bg-rose-400/8"
           >
             <span className="text-lg">↪</span>
             Sign out
-          </Link>
+          </button>
 
           <p className="mt-3 text-center text-[10px] text-slate-600">
             Lost &amp; Found · Campus Edition
